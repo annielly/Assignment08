@@ -1,5 +1,11 @@
 /*eslint-env browser*/
 
+var $ = function (id) {
+    "use strict";
+    return window.document.getElementById(id);
+};
+var theSpeed, speed = 2000;
+
 // REWRITTEN TO TAKE ADVANTAGE OF CLOSURES
 var createSlideshow = function () {
     "use strict";
@@ -41,12 +47,22 @@ var createSlideshow = function () {
             }
             return this;
         },
+
+        setSpeed: function () {
+			stopSlideShow();	
+			speed = theSpeed;
+			return this;
+		},
+		getSpeed: function () {
+			return speed;
+		},
+        
         startSlideShow: function () {
             if (arguments.length === 2) {
                 nodes.image = arguments[0];
                 nodes.caption = arguments[1];
             }
-            timer = setInterval(displayNextImage, 2000);
+            timer = setInterval(displayNextImage, this.getSpeed());
             return this;
         },
         createToggleHandler: function () {
@@ -68,13 +84,21 @@ var createSlideshow = function () {
     };
 };
 
-var $ = function (id) {
-    "use strict";
-    return window.document.getElementById(id);
-};
-
 // CREATE THE SLIDESHOW OBJECT
 var slideshow = createSlideshow();
+
+function validate(number) {
+    "use strict";
+    if (isNaN(number) || number === null) {
+        window.alert("Enter a number please.");
+		return false;
+    } else if (number < 0) {
+		window.alert("Enter a number.");
+		return false;
+	} else {
+		return true;
+	}
+}
 
 window.addEventListener("load", function () {
     "use strict";
@@ -89,4 +113,10 @@ window.addEventListener("load", function () {
     slideshow.loadImages(slides).startSlideShow($("image"), $("caption"));
     // PAUSE THE SLIDESHOW
     $("play_pause").onclick = slideshow.createToggleHandler();
+    $("speed").addEventListener("click", function () {
+		do {
+			theSpeed = parseInt(window.prompt("Current slideshow speed: " + slideshow.getSpeed() + "\nEnter new slideshow speed."), 10);
+		} while (validate(theSpeed) === false);
+		slideshow.setSpeed(theSpeed).startSlideShow();
+	});
 });
